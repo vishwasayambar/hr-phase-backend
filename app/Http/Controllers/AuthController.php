@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AccountActivationTokenVerificationRequest;
 use App\Models\User;
+use App\Models\VerificationCode;
+use App\Models\VerificationType;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -66,6 +70,21 @@ class AuthController extends Controller
         }else{
             return response("User not found");
         }
+    }
+
+    public function verifyToken(AccountActivationTokenVerificationRequest $request): Response
+    {
+        if (!$request->has('token')) {
+            throw new ModelNotFoundException();
+        }
+        return response(VerificationCode::query()
+                ->where('code', $request->get('token'))
+                ->where('expire_at', '>=', date('Y-m-d H:i:s'))
+                ->where('verifiable_type', User::MORPH_CLASS)
+                ->whereHas('verification_type', function ($query) use ($request) {
+                        $query->where('type', VerificationType::ACTIVATION);
+                })
+                ->firstOrFail());
     }
 
 }
