@@ -2,15 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\InternalApiException;
+use App\Http\Requests\AccountActivationRequest;
 use App\Http\Requests\AccountActivationTokenVerificationRequest;
+use App\Mail\TenantWelcomeMail;
+use App\Models\Tenant;
 use App\Models\User;
 use App\Models\VerificationCode;
 use App\Models\VerificationType;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Routing\ResponseFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -85,6 +93,60 @@ class AuthController extends Controller
                         $query->where('type', VerificationType::ACTIVATION);
                 })
                 ->firstOrFail());
+    }
+
+    public function accountActivate(AccountActivationRequest $request): JsonResponse
+    {
+        $verificationCode = VerificationCode::query()
+            ->where('code', $request->get('token'))
+            ->where('expire_at', '>=', date('Y-m-d H:i:s'))
+            ->where('verifiable_type', User::MORPH_CLASS)
+            ->whereHas('verification_type', function ($query) use ($request) {
+                $query->where('type', VerificationType::ACTIVATION);
+            })
+            ->firstOrFail();
+        DB::transaction(function() use ($verificationCode, $request) {
+            $user = User::query()->findOrFail($verificationCode->verifiable_id);
+            $user->password = $request->get('password');
+            $user->email_verified_at = now();
+            $user->last_login = now();
+            $user->save();
+
+            Mail::to($user)->send(new TenantWelcomeMail($user));
+
+            try {
+                $verificationCode->delete();
+            } catch (\Exception $e) {
+                return response()->json([
+                    "message" => $e->getMessage(),
+                ]);
+            }
+             return $this->respondWithToken($user);
+        });
+        return response()->json([
+            'message' => "Verification Failed",
+        ]);
+    }
+
+    protected function respondWithToken($user): JsonResponse
+    {
+        $tokenResult = $user->createToken('Password grant client');
+        $permissions = $user->getDirectPermissions()->pluck('name');
+        $tenant = Tenant::query()->whereTenantId($user->id)->first();
+        if (! count($permissions)) {
+            $permissions = $user->getPermissionsViaRoles()->pluck('name');
+        }
+
+        return response()->json([
+            'access_token' => $tokenResult->plainTextToken,
+            'token_type' => 'Bearer',
+            'expires_at' => Carbon::parse(
+                $tokenResult->token->expires_at
+            )->toDateTimeString(),
+            'user' => $user,
+            'permissions' => $permissions,
+            'tenant' => $tenant,
+        ]);
     }
 
 }
