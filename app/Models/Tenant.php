@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Mail\TenantRegisterMail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class Tenant extends Model
@@ -95,16 +97,19 @@ class Tenant extends Model
     protected static function booted(): void
     {
         static::created(function ($tenant){
-            $user = User::query()->create([
-                'name' => $tenant->name,
-                'tenant_id' => $tenant->id,
-                'type_id' => 1,
-                'email' => $tenant->email,
-                'password' => "magic123",
-            ]);
-            logger("Hello". print_r($user,true));
-            Mail::to($user)->send(new TenantRegisterMail($user));
+            DB::transaction(function () use ($tenant){
+                $user = User::query()->create([
+                    'name' => $tenant->name,
+                    'tenant_id' => $tenant->id,
+                    'type_id' => 1,
+                    'email' => $tenant->email,
+                    'password' => "magic123",
+                ]);
+                $user = User::query()->first()->assignRole(Role::ADMIN);
+                Log::info("Hello". print_r($user,true));
+                Mail::to($user)->send(new TenantRegisterMail($user));
 
+            });
         });
     }
 }
