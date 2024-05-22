@@ -13,12 +13,14 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('trial_ends_at')->nullable();
-            $table->bigInteger('account_id')->unique()->unsigned();
-            $table->bigInteger('sms_credits')->default(0)->unsigned();
             $table->string('whats_app_number')->nullable();
+            $table->timestamp('trial_ends_at')->nullable();
+            $table->bigInteger('sms_credits')->default(0)->unsigned();
+            $table->string('plan');
             $table->string('support_number')->nullable();
             $table->string('support_email')->nullable();
+            $table->bigInteger('account_id')->unique()->unsigned();
+            $table->string('source')->nullable();
             $table->boolean('is_completed_wizard_setup')->default(false);
             $table->timestamps();
         });
