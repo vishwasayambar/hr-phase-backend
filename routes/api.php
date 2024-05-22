@@ -14,3 +14,9 @@ Route::middleware(['cors'])->group(function () {
    Route::post('register', [AuthController::class, 'registerUser']);
    Route::post('login', [AuthController::class, 'login']);
 });
+
+Route::prefix('auth')->middleware(['cors'])->group(function () {
+    Route::get('verifyToken', [AuthController::class, 'verifyToken']);
+    Route::post('accountActivate', [AuthController::class, 'accountActivate']);
+    Route::post('login', [AuthController::class, 'login']);
+});
