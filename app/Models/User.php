@@ -41,6 +41,7 @@ class User extends Authenticatable
         self::FIREBASE_UID,
         self::NAME,
         self::TYPE_ID,
+        self::TENANT_ID,
         self::DISPLAY_NAME,
         self::EMAIL,
         self::MOBILE_NUMBER,
