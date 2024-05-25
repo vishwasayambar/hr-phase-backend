@@ -105,8 +105,8 @@ class AuthController extends Controller
                 $query->where('type', VerificationType::ACTIVATION);
             })
             ->firstOrFail();
-        DB::transaction(function() use ($verificationCode, $request) {
-            $user = User::query()->findOrFail($verificationCode->verifiable_id);
+        $user = User::query()->findOrFail($verificationCode->verifiable_id);
+        DB::transaction(function() use ($verificationCode, $request, $user) {
             $user->password = $request->get('password');
             $user->email_verified_at = now();
             $user->last_login = now();
@@ -121,18 +121,15 @@ class AuthController extends Controller
                     "message" => $e->getMessage(),
                 ]);
             }
-             return $this->respondWithToken($user);
         });
-        return response()->json([
-            'message' => "Verification Failed",
-        ]);
+             return $this->respondWithToken($user);
     }
 
     protected function respondWithToken($user): JsonResponse
     {
         $tokenResult = $user->createToken('Password grant client');
         $permissions = $user->getDirectPermissions()->pluck('name');
-        $tenant = Tenant::query()->whereTenantId($user->id)->first();
+        $tenant = Tenant::query()->whereId($user->tenant_id)->first();
         if (! count($permissions)) {
             $permissions = $user->getPermissionsViaRoles()->pluck('name');
         }
@@ -141,7 +138,7 @@ class AuthController extends Controller
             'access_token' => $tokenResult->plainTextToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
-                $tokenResult->token->expires_at
+                $tokenResult->accessToken->expires_at
             )->toDateTimeString(),
             'user' => $user,
             'permissions' => $permissions,
