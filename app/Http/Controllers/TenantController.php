@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ResendActivationEmailRequest;
 use App\Http\Requests\StoreTenantRequest;
+use App\Mail\TenantRegisterMail;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantController extends Controller
@@ -34,9 +37,16 @@ class TenantController extends Controller
                 'sms_credits' => 50,
             ]);
         });
-
-
         return response()->json( Response::HTTP_OK);
+    }
+
+    public function resendActivationEmail(ResendActivationEmailRequest $request): Response
+    {
+        $validatedRequest = $request->validated();
+        $user = User::query()->where('email', $validatedRequest['email'])->first();
+        Mail::to($user)->send(new TenantRegisterMail($user));
+
+        return response()->noContent();
     }
 
 }
