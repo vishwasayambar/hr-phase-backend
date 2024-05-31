@@ -62,14 +62,7 @@ class AuthController extends Controller
         if(!empty($user)){
             if(Hash::check($request->password, $user->password)){
 
-                $token = $user->createToken("User Token Assigned");
-
-                return response()->json([
-                    'access_token' => $token,
-                    'token_type' => 'Bearer',
-                    'user' => $user,
-//                    'permissions' => $permissions,
-                ]);
+                return $this->respondWithToken($user);
 
             }else{
                 return response("Invalid password");
