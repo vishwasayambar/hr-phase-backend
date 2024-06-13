@@ -12,6 +12,7 @@ class UserType extends Model
     public const ID = 'id';
 
     public const NAME = 'name';
+    public const USER_TYPE_EMPLOYEE = 2;
 
 
 }
