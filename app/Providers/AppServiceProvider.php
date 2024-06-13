@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Address;
+use App\Models\Addressable;
+use App\Models\Bank;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,6 +27,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Relation::enforceMorphMap([
+            'user' => User::class,
+            'address' => Addressable::class,
+            'bank' => Bank::class,
+        ]);
     }
 }
