@@ -73,6 +73,11 @@ class AuthController extends Controller
         }
     }
 
+    public function logOut(Request $request){
+        $request->user()->currentAccessToken()->delete();
+        return response("You have been successfully logged out!");
+    }
+
     public function verifyToken(AccountActivationTokenVerificationRequest $request): Response
     {
         if (!$request->has('token')) {
