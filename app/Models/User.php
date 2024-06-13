@@ -3,8 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\SetTenantId;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -14,6 +16,7 @@ class User extends Authenticatable
 {
     use  HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
+    use SetTenantId;
 
     public const ID                = 'id';
     public const TENANT_ID         = 'tenant_id';
@@ -94,6 +97,22 @@ class User extends Authenticatable
     public function password(): Attribute
     {
         return Attribute::make(set: fn(string $value) => bcrypt($value),);
+    }
+
+    public function address(): MorphMany
+    {
+        return $this->morphMany(Addressable::class, 'addressable');
+    }
+
+    public function bank(): MorphMany
+    {
+        return $this->morphMany(Bank::class, 'bankable');
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+        self::bootSetsTenantId();
     }
 
 }
