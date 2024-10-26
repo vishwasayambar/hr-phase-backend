@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -48,6 +49,15 @@ class PermissionController extends Controller
         }
 
         return response($mappedPermissions);
+    }
+    public function getByRoleId(Request $request, int $roleId): Response
+    {
+        $rolePermission = Role::query()
+            ->find($roleId)
+            ->permissions->groupBy("module_name")
+            ->toArray();
+
+        return response($rolePermission);
     }
 
     public function update(Request $request, int $userId): Response

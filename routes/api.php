@@ -27,6 +27,7 @@ Route::middleware(['cors'])->group(function () {
 
         Route::get('permissions', [PermissionController::class, 'index']);
         Route::get('permissions/getAll', [PermissionController::class, 'getAllPermissions']);
+        Route::get('permissions/getByRoleId/{roleId}', [PermissionController::class, 'getByRoleId']);
         Route::get('permissions/getByUserId/{userId}', [PermissionController::class, 'getByUserId']);
 
         Route::prefix('employees')->group(function () {
