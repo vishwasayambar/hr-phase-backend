@@ -32,6 +32,7 @@ Route::middleware(['cors'])->group(function () {
 
         Route::prefix('employees')->group(function () {
             Route::post('/', [EmployeeController::class, 'store']);
+            Route::get('/', [EmployeeController::class, 'index']);
         });
 
     });

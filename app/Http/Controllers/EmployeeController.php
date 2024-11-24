@@ -4,24 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
-use App\Models\Bank;
-use App\Models\Employee;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class EmployeeController extends Controller
 {
 
-    public function index()
+    public function index(Request $request): LengthAwarePaginator
     {
-        //
+        $currentPage = $request->input('page');
+        Paginator::currentPageResolver(fn() => $currentPage);
+        return User::query()->with('roles')->filter($request->all())->sortByField($request->input('order_by'), $request->input('order_by_direction'))
+            ->paginate($request->input('per_page', 20));
     }
 
     public function store(StoreEmployeeRequest $request)
     {
-        return DB::transaction(function () use ($request){
+        return DB::transaction(function () use ($request) {
             $validatedData = $request->validated();
             $user = User::query()->create($validatedData);
             if ($request->has('address') && array_filter($request->input('address'))) {
@@ -34,17 +36,17 @@ class EmployeeController extends Controller
         });
     }
 
-    public function show(Employee $employee)
+    public function show(User $employee)
     {
         //
     }
 
-    public function update(UpdateEmployeeRequest $request, Employee $employee)
+    public function update(UpdateEmployeeRequest $request, User $employee)
     {
         //
     }
 
-    public function destroy(Employee $employee)
+    public function destroy(User $employee)
     {
         //
     }
