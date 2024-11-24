@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Traits\HasSorting;
 use App\Traits\SetTenantId;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Arr;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -15,6 +18,7 @@ class User extends Authenticatable
 {
     use  HasApiTokens, HasFactory, Notifiable;
     use HasRoles;
+    use HasSorting;
     use SetTenantId;
 
     public const ID = 'id';
@@ -156,4 +160,23 @@ class User extends Authenticatable
         parent::boot();
         self::bootSetsTenantId();
     }
+
+    public function scopeFilter($query, $filter): Builder
+    {
+        $query->search(Arr::get($filter, 'search'));
+        return $query;
+    }
+
+    public function scopeSearch($query, $search): Builder
+    {
+        return $query->when($search, function ($query) use ($search) {
+            $query->whereAny([
+                'name',
+                'email',
+                'mobile_number',
+                'phone_number',
+            ], 'LIKE', "%{$search}%");
+        });
+    }
+
 }
