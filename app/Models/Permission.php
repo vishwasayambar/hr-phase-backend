@@ -19,10 +19,18 @@ class Permission extends BasePermission
     public const CREATED_AT = 'created_at';
     public const UPDATED_AT = 'updated_at';
 
+    public const ALL_MODULE_FORCE_DELETE = 'all_module.force_delete';
+    public const ALL_MODULE_RESTORE = 'all_module.restore';
+
     public const BUSINESS_SETTING_VIEW = 'business_settings.view';
     public const BUSINESS_SETTING_WRITE = 'business_settings.write';
     public const BUSINESS_SETTING_EDIT = 'business_settings.edit';
     public const BUSINESS_SETTING_DELETE = 'business_settings.delete';
+
+    public const DEPARTMENT_LIST = 'department.list';
+    public const DEPARTMENT_WRITE = 'department.write';
+    public const DEPARTMENT_EDIT = 'department.edit';
+    public const DEPARTMENT_DELETE = 'department.delete';
 
     public const EMPLOYEE_LIST = 'employee.list';
     public const EMPLOYEE_WRITE = 'employee.write';

@@ -7,6 +7,7 @@ use App\Traits\SetTenantId;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -58,6 +59,8 @@ class User extends Authenticatable
     public array $sortableColumns = [self::DATE_OF_BIRTH];
 
     public $table = 'users';
+
+    protected string $guard_name = 'api';
 
     protected $fillable = [
         self::FIREBASE_UID,
@@ -155,6 +158,14 @@ class User extends Authenticatable
         return $this->morphMany(Bank::class, 'bankable');
     }
 
+    /**
+     * Get the department associated with the user.
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     protected static function boot(): void
     {
         parent::boot();
@@ -171,12 +182,44 @@ class User extends Authenticatable
     {
         return $query->when($search, function ($query) use ($search) {
             $query->whereAny([
-                'name',
-                'email',
-                'mobile_number',
-                'phone_number',
+                self::NAME,
+                self::DISPLAY_NAME,
+                self::EMAIL,
+                self::MOBILE_NUMBER,
+                self::PHONE_NUMBER,
             ], 'LIKE', "%{$search}%");
         });
     }
 
+    /**
+     * Check if the user has a specific permission, either directly or through their roles.
+     *
+     * Steps:
+     * 1. First, check if the user has the permission directly assigned (via model_has_permissions).
+     *    - If yes, return true.
+     * 2. If the user doesn't have the permission directly, check their roles.
+     *    - Only check roles if the user has no direct permissions.
+     *    - If any role grants the permission, return true.
+     * 3. If neither the user nor their roles have the permission, return false.
+     *
+     * @param string $permissionName The name of the permission to check.
+     * @return bool True if the user has the permission, false otherwise.
+     */
+    public function hasAccessTo(string $permissionName): bool
+    {
+        // Step 1: Check if the user has the permission directly in model_has_permissions
+        if ($this->permissions->contains('name', $permissionName)) {
+            return true;  // User has the permission directly
+        }
+
+        // Step 2: If the user doesn't have the permission directly, check their roles
+        // This step only happens if no direct permissions are found
+        if ($this->permissions()->count() === 0) {
+            // If no direct permissions, check if any of the user's roles give this permission
+            return $this->roles->contains(fn($role) => $role->hasPermissionTo($permissionName));
+        }
+
+        // If no permission found directly or through roles, return false
+        return false;
+    }
 }
