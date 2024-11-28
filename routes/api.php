@@ -20,18 +20,18 @@ Route::middleware(['cors'])->group(function () {
         Route::post('login', [AuthController::class, 'login']);
     });
 
-    Route::middleware([ 'auth:sanctum'])->group(function () {
+    Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('logout', [AuthController::class, 'logout']);
 
         Route::middleware('role:admin')->group(function () {
             Route::post('roles', [RoleController::class, 'store']);
+            Route::put('permissions/assignPermissionsToRole/{userId}', [PermissionController::class, 'assignPermissionsToRole']);
         });
+
         Route::get('roles/getRoles', [RoleController::class, 'getEmployeeRoles']);
         Route::get('permissions', [PermissionController::class, 'index']);
-        Route::get('permissions/getAll', [PermissionController::class, 'getAllPermissions']);
         Route::get('permissions/getByRoleId/{roleId}', [PermissionController::class, 'getByRoleId']);
         Route::get('permissions/getByUserId/{userId}', [PermissionController::class, 'getByUserId']);
-        Route::put('permissions/saveRolePermissions/{userId}', [PermissionController::class, 'update']);
 
         Route::prefix('employees')->group(function () {
             Route::post('/', [EmployeeController::class, 'store']);

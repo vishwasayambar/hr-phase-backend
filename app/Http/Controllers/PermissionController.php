@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PermissionController extends Controller
 {
@@ -20,13 +22,7 @@ class PermissionController extends Controller
                 'items' => $value,
             ];
         }
-
         return response($permissionArr);
-    }
-
-    public function getAllPermissions()
-    {
-        return Permission::query()->get();
     }
 
     public function getByUserId(Request $request, int $userId): Response
@@ -60,11 +56,13 @@ class PermissionController extends Controller
         return response($rolePermission);
     }
 
-    public function update(Request $request, int $userId): Response
+    public function assignPermissionsToRole(Request $request, int $roleId): Response
     {
-        $user = User::with('permissions')->findOrFail($userId);
-        $user->syncPermissions($request->input('permissions'));
-        DB::table('oauth_access_tokens')->where('user_id', $user->id)->delete();
+        $role = Role::query()->findOrFail($roleId);
+        $selectedPermissionNames = collect($request->input('selectedPermission'))->pluck('name')->toArray();
+        $deSelectedPermissionNames = collect($request->input('deSelectedPermission'))->pluck('name')->toArray();
+        $role->givePermissionTo($selectedPermissionNames);
+        $role->revokePermissionTo($deSelectedPermissionNames);
 
         return response()->noContent();
     }
