@@ -38,8 +38,7 @@ return new class extends Migration
             $table->integer('probation_period')->nullable()->after('tax_number');
             $table->date('date_of_joining')->nullable()->after('probation_period');
             $table->foreignId('reporting_manager_id')->nullable()->after('date_of_joining')->constrained('users')->nullOnDelete();
-            $table->foreignId('department_id')->nullable()->after('reporting_manager_id')->constrained('departments')->nullOnDelete();
-            $table->string('grade')->nullable()->after('department_id');
+            $table->string('grade')->nullable()->after('reporting_manager_id');
             $table->string('attendance_scheme')->nullable()->after('grade');
             $table->string('pf_number')->nullable()->after('attendance_scheme');
             $table->string('uan_number')->nullable()->after('pf_number');
@@ -52,13 +51,11 @@ return new class extends Migration
             $table->dropForeign(['tenant_id']);
             $table->dropForeign(['type_id']);
             $table->dropForeign(['reporting_manager_id']);
-            $table->dropForeign(['department_id']);
 
             $table->dropColumn([
                 'tenant_id',
                 'type_id',
                 'reporting_manager_id',
-                'department_id',
                 'display_name',
                 'mobile_number',
                 'phone_number',
