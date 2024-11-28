@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -32,6 +33,8 @@ class EmployeeController extends Controller
             if ($request->has('bank') && array_filter($request->input('bank'))) {
                 $user->bank()->createMany($validatedData['bank']);
             }
+            $role = Role::query()->findOrFail($request->input('role_id'));
+            $user->assignRole($role->name);
             return response($user->loadMissing('address', 'bank'));
         });
     }
