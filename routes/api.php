@@ -5,6 +5,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TenantController;
+use App\Http\Controllers\UpdateUserStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['cors'])->group(function () {
@@ -33,10 +34,8 @@ Route::middleware(['cors'])->group(function () {
         Route::get('permissions/getByRoleId/{roleId}', [PermissionController::class, 'getByRoleId']);
         Route::get('permissions/getByUserId/{userId}', [PermissionController::class, 'getByUserId']);
 
-        Route::prefix('employees')->group(function () {
-            Route::post('/', [EmployeeController::class, 'store']);
-            Route::get('/', [EmployeeController::class, 'index']);
-        });
+        Route::patch('employees/updateStatus/{id}', UpdateUserStatusController::class);
+        Route::apiResource('employees', EmployeeController::class);
     });
 });
 

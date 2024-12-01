@@ -9,7 +9,7 @@ class UpdateEmployeeRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return false;
+        return auth()->check() && auth()->user()->id;
     }
 
     public function rules(): array
@@ -82,6 +82,21 @@ class UpdateEmployeeRequest extends FormRequest
                 'boolean',
             ],
             'firebase_id' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'emergency_contact_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'emergency_contact_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'father_name' => [
                 'nullable',
                 'string',
                 'max:255',

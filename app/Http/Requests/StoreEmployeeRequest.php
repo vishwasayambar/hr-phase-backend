@@ -92,6 +92,21 @@ class StoreEmployeeRequest extends FormRequest
                 'string',
                 'max:255',
             ],
+            'emergency_contact_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'emergency_contact_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'father_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
             'referred_by_id' => [
                 'nullable',
                 'exists:users,id',

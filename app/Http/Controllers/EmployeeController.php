@@ -6,7 +6,9 @@ use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Role;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
@@ -39,18 +41,60 @@ class EmployeeController extends Controller
         });
     }
 
-    public function show(User $employee)
+    public function show(Request $request, int $id): Response
     {
-        //
+        return response(User::query()->findOrFail($id)->loadMissing('address', 'bank'));
     }
 
-    public function update(UpdateEmployeeRequest $request, User $employee)
+    public function update(UpdateEmployeeRequest $request, User $employee): Response
     {
-        //
+        return DB::transaction(function () use ($request, $employee) {
+            $employee->update($request->validated());
+            if ($request->has('address')) {
+                $this->updateRelatedData(
+                    $employee,
+                    'address',
+                    $request->validated()['address'] ?? []
+                );
+            }
+            if ($request->has('bank')) {
+                $this->updateRelatedData(
+                    $employee,
+                    'bank',
+                    $request->validated()['bank'] ?? []
+                );
+            }
+            return response($employee->loadMissing('address', 'bank'));
+        });
     }
 
-    public function destroy(User $employee)
+    public function destroy(User $employee): Response
     {
-        //
+        try {
+            return response($employee->delete());
+        } catch (Exception $e) {
+            return response('ERROR IN DELETING Employee AND ERROR MESSAGE IS ', $e->getMessage());
+        }
+    }
+
+    /**
+     * Update related data for a given employee.
+     *
+     * @param User|null $employee
+     * @param string $relation
+     * @param array $data
+     * @return void
+     */
+    private function updateRelatedData(User|null $employee, string $relation, array $data): void
+    {
+        if (!empty(array_filter($data))) {
+            foreach ($data as &$item) {
+                $item["{$relation}able_id"] = $employee->id; // Dynamically set the relation ID
+            }
+            unset($item);
+
+            $employee->$relation()->delete(); // Clear existing data
+            $employee->$relation()->createMany($data); // Insert new data
+        }
     }
 }
