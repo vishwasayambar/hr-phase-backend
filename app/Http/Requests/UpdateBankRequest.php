@@ -17,9 +17,9 @@ class UpdateBankRequest extends FormRequest
     {
         return [
             'bankable_id' => [
-                'required', 'integer',
+                'nullable', 'integer',
             ], 'bankable_type' => [
-                'required', 'string',
+                'nullable', 'string',
             ], 'account_name' => [
                 'required',
             ], 'account_number' => [
