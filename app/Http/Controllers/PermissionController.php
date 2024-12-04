@@ -47,7 +47,6 @@ class PermissionController extends Controller
             ->find($roleId)
             ->permissions->groupBy("module_name")
             ->toArray();
-
         return response($rolePermission);
     }
 
@@ -55,10 +54,7 @@ class PermissionController extends Controller
     {
         $role = Role::query()->findOrFail($roleId);
         $selectedPermissionNames = collect($request->input('selectedPermission'))->pluck('name')->toArray();
-        $deSelectedPermissionNames = collect($request->input('deSelectedPermission'))->pluck('name')->toArray();
-        $role->givePermissionTo($selectedPermissionNames);
-        $role->revokePermissionTo($deSelectedPermissionNames);
-
+        $role->syncPermissions($selectedPermissionNames);
         return response()->noContent();
     }
 
