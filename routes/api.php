@@ -27,6 +27,7 @@ Route::middleware(['cors'])->group(function () {
         Route::middleware('role:admin')->group(function () {
             Route::post('roles', [RoleController::class, 'store']);
             Route::put('permissions/assignPermissionsToRole/{userId}', [PermissionController::class, 'assignPermissionsToRole']);
+            Route::put('permissions/updateUserDirectPermission/{userId}', [PermissionController::class, 'updateUserDirectPermission']);
         });
 
         Route::get('roles/getRoles', [RoleController::class, 'getEmployeeRoles']);
