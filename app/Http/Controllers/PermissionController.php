@@ -5,11 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PermissionController extends Controller
 {
@@ -27,25 +24,23 @@ class PermissionController extends Controller
 
     public function getByUserId(Request $request, int $userId): Response
     {
-        $userPermissionArr = User::query()->findOrFail($userId)->getDirectPermissions()->pluck('name')->toArray();
-        if (! count($userPermissionArr)) {
-            $userPermissionArr = User::query()->findOrFail($userId)->getPermissionsViaRoles()->pluck('name')->toArray();
-        }
-        $mappedPermissions = [];
-        foreach (Permission::all()->groupBy('module_name') as $key => $permissions) {
-            $permissions = $permissions->map(function ($perm) use ($userPermissionArr) {
-                $perm->checked = in_array($perm->name, $userPermissionArr);
+        $user = User::query()->findOrFail($userId);
 
-                return $perm;
-            });
-            $mappedPermissions[] = (object) [
-                'name' => $key,
-                'items' => $permissions,
-            ];
+        // Fetch permissions directly assigned to the user or inherited via roles
+        $userPermissionArr = $user->getDirectPermissions();
+
+        if ($userPermissionArr->isEmpty()) {
+            $userPermissionArr = $user->getPermissionsViaRoles();
         }
 
-        return response($mappedPermissions);
+        // Group permissions by module_name with formatted module names
+        $groupedPermissions = $userPermissionArr->groupBy(function ($permission) {
+            return ucwords(str_replace('_', ' ', $permission->module_name));
+        })->toArray();
+
+        return response($groupedPermissions);
     }
+
     public function getByRoleId(Request $request, int $roleId): Response
     {
         $rolePermission = Role::query()
@@ -64,6 +59,14 @@ class PermissionController extends Controller
         $role->givePermissionTo($selectedPermissionNames);
         $role->revokePermissionTo($deSelectedPermissionNames);
 
+        return response()->noContent();
+    }
+
+    public function updateUserDirectPermission(Request $request, int $userId): Response
+    {
+        $user = User::query()->findOrFail($userId);
+        $selectedPermissionNames = collect($request->input('selectedPermission'))->pluck('name')->toArray();
+        $user->syncPermissions($selectedPermissionNames);
         return response()->noContent();
     }
 }
