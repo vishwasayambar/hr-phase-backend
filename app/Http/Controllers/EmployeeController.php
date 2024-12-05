@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserCreatedEvent;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Role;
@@ -37,6 +38,10 @@ class EmployeeController extends Controller
             }
             $role = Role::query()->findOrFail($request->input('role_id'));
             $user->assignRole($role->name);
+
+            DB::afterCommit(function () use ($user) {
+                event(new UserCreatedEvent($user));
+            });
             return response($user->loadMissing('address', 'bank'));
         });
     }
