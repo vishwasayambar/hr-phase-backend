@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Traits\HasSorting;
 use App\Traits\SetTenantId;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -11,6 +13,7 @@ use Illuminate\Support\Arr;
 class Department extends Model
 {
     use SetTenantId;
+    use HasSorting;
     use softDeletes;
 
     public const ID = 'id';
@@ -41,7 +44,7 @@ class Department extends Model
         return $this->hasMany(User::class);
     }
 
-    public function scopeFilter($query, $filter): HasMany
+    public function scopeFilter($query, $filter): Builder
     {
         $search = Arr::get($filter, 'search');
 

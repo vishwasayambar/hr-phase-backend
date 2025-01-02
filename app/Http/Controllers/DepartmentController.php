@@ -22,6 +22,19 @@ class DepartmentController extends Controller
     }
 
     /**
+     * Display a trashed listing.
+     */
+    public function trashedListByQuery(Request $request)
+    {
+        $currentPage = $request->input('page');
+        Paginator::currentPageResolver(fn() => $currentPage);
+        return Department::onlyTrashed()
+            ->filter($request->all())
+            ->sortByField($request->input('order_by'), $request->input('order_by_direction'))
+            ->paginate($request->input('per_page', 20));
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request): Response
@@ -75,10 +88,14 @@ class DepartmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function restore(Department $department): Response
+    public function restore(int $id): Response
     {
         try {
+            // Find the trashed department
+            $department = Department::onlyTrashed()->findOrFail($id);
+
             return response($department->restore());
+
         } catch (Exception $e) {
             return response('ERROR IN Restoring Department AND ERROR MESSAGE IS ', $e->getMessage());
         }
