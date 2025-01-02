@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\UserCreatedEvent;
+use App\Events\UserUpdatedEvent;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Role;
@@ -69,6 +70,11 @@ class EmployeeController extends Controller
                     $request->validated()['bank'] ?? []
                 );
             }
+
+            DB::afterCommit(function () use ($request, $employee) {
+                UserUpdatedEvent::dispatch($employee);
+            });
+
             return response($employee->loadMissing('address', 'bank'));
         });
     }
