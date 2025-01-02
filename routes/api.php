@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
@@ -29,6 +30,11 @@ Route::middleware(['cors'])->group(function () {
             Route::put('permissions/assignPermissionsToRole/{userId}', [PermissionController::class, 'assignPermissionsToRole']);
             Route::put('permissions/updateUserDirectPermission/{userId}', [PermissionController::class, 'updateUserDirectPermission']);
         });
+
+        Route::get('departments/trashedListByQuery', [DepartmentController::class, 'trashedListByQuery']);
+        Route::delete('departments/permanentDelete/{id}', [DepartmentController::class, 'forceDestroy']);
+        Route::get('departments/restore/{id}', [DepartmentController::class, 'restore']);
+        Route::apiResource('departments', DepartmentController::class);
 
         Route::get('roles/getRoles', [RoleController::class, 'getEmployeeRoles']);
         Route::get('permissions', [PermissionController::class, 'index']);
