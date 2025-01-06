@@ -36,9 +36,13 @@ return new class extends Migration
             $table->string('father_name')->nullable()->after('emergency_contact_number');
             $table->string('tax_number')->nullable()->after('father_name');
             $table->integer('probation_period')->nullable()->after('tax_number');
-            $table->date('date_of_joining')->nullable()->after('probation_period');
-            $table->foreignId('reporting_manager_id')->nullable()->after('date_of_joining')->constrained('users')->nullOnDelete();
-            $table->string('grade')->nullable()->after('reporting_manager_id');
+            $table->integer('notice_period')->nullable()->after('probation_period');
+            $table->date('joining_date')->nullable()->after('notice_period');
+            $table->date('joining_confirmation_at')->nullable()->after('joining_date');
+            $table->foreignId('reporting_manager_id')->nullable()->after('joining_confirmation_at')->constrained('users')->nullOnDelete();
+            $table->foreignId('referred_by_id')->nullable()->after('reporting_manager_id')->constrained('users')->nullOnDelete();
+            $table->string('joining_status')->nullable()->after('referred_by_id');
+            $table->string('grade')->nullable()->after('joining_status');
             $table->string('attendance_scheme')->nullable()->after('grade');
             $table->string('pf_number')->nullable()->after('attendance_scheme');
             $table->string('uan_number')->nullable()->after('pf_number');

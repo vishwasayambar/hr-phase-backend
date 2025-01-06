@@ -115,9 +115,21 @@ class StoreEmployeeRequest extends FormRequest
                 'nullable',
                 'integer',
             ],
-            'date_of_joining' => [
+            'notice_period' => [
+                'nullable',
+                'integer',
+            ],
+            'joining_date' => [
                 'nullable',
                 'date',
+            ],
+            'confirmation_date' => [
+                'nullable',
+                'date',
+            ],
+            'joining_status' => [
+                'nullable',
+                'string',
             ],
             'reporting_manager_id' => [
                 'nullable',
