@@ -17,10 +17,10 @@ class UpdateAddressableRequest extends FormRequest
     {
         return [
             'addressable_type' => [
-                'required', 'string',
+                'nullable', 'string',
             ],
             'addressable_id' => [
-                'required', 'integer',
+                'nullable', 'integer',
             ],
             'address_line' => [
                 'nullable', 'string',

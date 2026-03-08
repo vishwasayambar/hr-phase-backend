@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Enums\Entity;
 use App\Models\Address;
 use App\Models\Addressable;
 use App\Models\Bank;
@@ -28,9 +29,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::enforceMorphMap([
-            'user' => User::class,
-            'address' => Addressable::class,
-            'bank' => Bank::class,
+            Entity::USER->value => User::class,
+            Entity::ADDRESS->value => Addressable::class,
+            Entity::BANK->value => Bank::class,
         ]);
     }
 }

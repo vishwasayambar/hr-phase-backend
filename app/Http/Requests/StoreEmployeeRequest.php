@@ -83,6 +83,81 @@ class StoreEmployeeRequest extends FormRequest
                 'required',
                 Rule::in([1, 2]),
             ],
+            'is_active' => [
+                'nullable',
+                'boolean',
+            ],
+            'firebase_id' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'emergency_contact_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'emergency_contact_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'father_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'referred_by_id' => [
+                'nullable',
+                'exists:users,id',
+            ],
+            'probation_period' => [
+                'nullable',
+                'integer',
+            ],
+            'notice_period' => [
+                'nullable',
+                'integer',
+            ],
+            'joining_date' => [
+                'nullable',
+                'date',
+            ],
+            'confirmation_date' => [
+                'nullable',
+                'date',
+            ],
+            'joining_status' => [
+                'nullable',
+                'string',
+            ],
+            'reporting_manager_id' => [
+                'nullable',
+                'exists:users,id',
+            ],
+            'department_id' => [
+                'nullable',
+                'exists:departments,id',
+            ],
+            'grade' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'attendance_scheme' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'pf_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+            'uan_number' => [
+                'nullable',
+                'string',
+            ],
         ];
 
         return [...$employeeRules, ...$addressRules, ...$bankRules];
