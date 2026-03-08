@@ -25,7 +25,7 @@ class Helper
             'expire_at' => $linkExpireOn,
             'code' => $code,
         ]);
-        info("Verification code created for verifiable_id:$verifiableId, for verifiableType :verifiableType and expireOn:linkExpireOn, code:$code");
+        info("Verification code created for verifiable_id:$verifiableId, for verifiableType:$verifiableType and expireOn:$linkExpireOn, code:$code");
 
         return $verificationCode->code;
     }

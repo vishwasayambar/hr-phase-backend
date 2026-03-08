@@ -54,7 +54,7 @@ class PermissionController extends Controller
     {
         $user = User::with('permissions')->findOrFail($userId);
         $user->syncPermissions($request->input('permissions'));
-        DB::table('oauth_access_tokens')->where('user_id', $user->id)->delete();
+        DB::table('personal_access_tokens')->where('tokenable_id', $user->id)->delete();
 
         return response()->noContent();
     }

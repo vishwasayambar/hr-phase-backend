@@ -21,7 +21,7 @@ Route::middleware(['cors'])->group(function () {
     });
 
     Route::middleware([ 'auth:sanctum'])->group(function () {
-        Route::get('logout', [AuthController::class, 'logout']);
+        Route::get('logout', [AuthController::class, 'logOut']);
 
         Route::get('roles/getRoles', [RoleController::class, 'getEmployeeRoles']);
 

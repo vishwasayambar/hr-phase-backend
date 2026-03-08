@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\InternalApiException;
 use App\Http\Requests\AccountActivationRequest;
 use App\Http\Requests\AccountActivationTokenVerificationRequest;
 use App\Mail\TenantWelcomeMail;
@@ -11,11 +10,9 @@ use App\Models\User;
 use App\Models\VerificationCode;
 use App\Models\VerificationType;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Routing\ResponseFactory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -28,8 +25,8 @@ class AuthController extends Controller
             'name' => "required|string",
             'tenant_id' => "required|integer",
             'type_id' => "required|integer",
-            'email' => "required|email",
-            'password' => "required|string|confirmed",
+            'email' => "required|email|unique:users,email",
+            'password' => "required|string|confirmed|min:8",
         ]);
 
         $user =  User::create([
@@ -81,7 +78,7 @@ class AuthController extends Controller
     public function verifyToken(AccountActivationTokenVerificationRequest $request): Response
     {
         if (!$request->has('token')) {
-            throw new ModelNotFoundException();
+            abort(422, 'Token is required');
         }
         return response(VerificationCode::query()
                 ->where('code', $request->get('token'))
@@ -110,15 +107,9 @@ class AuthController extends Controller
             $user->last_login = now();
             $user->save();
 
-            Mail::to($user)->send(new TenantWelcomeMail($user));
+            $verificationCode->delete();
 
-            try {
-                $verificationCode->delete();
-            } catch (\Exception $e) {
-                return response()->json([
-                    "message" => $e->getMessage(),
-                ]);
-            }
+            Mail::to($user)->send(new TenantWelcomeMail($user));
         });
              return $this->respondWithToken($user);
     }

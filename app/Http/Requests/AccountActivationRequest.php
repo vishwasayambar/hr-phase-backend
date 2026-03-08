@@ -21,6 +21,7 @@ class AccountActivationRequest extends FormRequest
             'password' => [
                 'required',
                 'confirmed',
+                'min:8',
             ],
         ];
     }

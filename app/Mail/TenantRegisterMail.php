@@ -29,7 +29,7 @@ class TenantRegisterMail extends Mailable implements ShouldQueue
     public function build(): self
     {
         return $this->markdown('emails.tenants.tenant-registered')
-            ->subject('Activate your BytePhase account');
+            ->subject('Activate your HrPhase account');
     }
 
 }

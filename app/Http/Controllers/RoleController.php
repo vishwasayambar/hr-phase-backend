@@ -15,6 +15,6 @@ class RoleController
 
     public function getCustomerRoles(): Response
     {
-        return response(Cache::rememberForever('customer_roles', fn () => Role::whereIsEmployee(false)->get()));
+        return response(Cache::rememberForever('customer_roles', fn () => Role::query()->get()));
     }
 }

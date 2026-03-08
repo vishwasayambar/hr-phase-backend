@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class Tenant extends Model
 {
@@ -103,12 +104,11 @@ class Tenant extends Model
                     'tenant_id' => $tenant->id,
                     'type_id' => 1,
                     'email' => $tenant->email,
-                    'password' => "magic123",
+                    'password' => Str::random(32),
                 ]);
-                $user = User::query()->first()->assignRole(Role::ADMIN);
-                Log::info("Hello". print_r($user,true));
+                $user->assignRole(Role::ADMIN);
+                Log::info("Tenant user created", ['user_id' => $user->id, 'tenant_id' => $tenant->id]);
                 Mail::to($user)->send(new TenantRegisterMail($user));
-
             });
         });
     }
