@@ -40,8 +40,7 @@ return new class extends Migration
             $table->date('joining_date')->nullable()->after('notice_period');
             $table->date('joining_confirmation_at')->nullable()->after('joining_date');
             $table->foreignId('reporting_manager_id')->nullable()->after('joining_confirmation_at')->constrained('users')->nullOnDelete();
-            $table->foreignId('referred_by_id')->nullable()->after('reporting_manager_id')->constrained('users')->nullOnDelete();
-            $table->string('joining_status')->nullable()->after('referred_by_id');
+            $table->string('joining_status')->nullable()->after('reporting_manager_id');
             $table->string('grade')->nullable()->after('joining_status');
             $table->string('attendance_scheme')->nullable()->after('grade');
             $table->string('pf_number')->nullable()->after('attendance_scheme');
